@@ -1,5 +1,5 @@
 const express = require('express')
-const { v4: uuidv4 } = require('uuid') // Utilizando a V4, ela gera pra mim números randomicos (o que eu fiz ali dps dos : foi apenas renomear ela pra ficar de mais fácil entendimento)
+const { v4: uuidv4 } = require('uuid')
 
 const app = express()
 app.use(express.json())
@@ -16,8 +16,7 @@ function verifyExistsAccount(req, res, next){
     return res.status(400).json({erro: 'Customer not found'})
   }
 
-  req.customer = customer // Deixo aberto para que todas as rotas que utilizarem esse middleware, terem acesso ao customer, eu primeiro nomeio ele dps do req. e dps chamo o que eu quero requerir
-
+  req.customer = customer 
   return next()
 }
 
@@ -36,9 +35,8 @@ function getBalance(statement){
 app.post('/account', (req, res) => {
   const { cpf, name } = req.body
 
-  const customerAlreadyExists = customers.some(customer => customer.cpf === cpf) // Estou iterando sobre o array customers, vendo cada customer por vez, especificamente o cpf dele, e deposi comparo o cpf com o meu novo cpf que estou cadastrando, ele irá retornar true ou false
-
-  if(customerAlreadyExists){
+  const customerExists = customers.some(customer => customer.cpf === cpf)
+  if(customerExists){
     return res.status(400).json({error: "Customer already exists"})
   }
 
@@ -49,14 +47,11 @@ app.post('/account', (req, res) => {
     statement: []
   })
 
-  return res.status(201).send() // 201 -> Created // Como estou criando um user, é esse método que eu utilizo
+  return res.status(201).send()
 })
 
-// app.use(verifyExistsAccount) -> middleware global, tudo que está abaixo dele receberá esse middleware por padrão, o que está acima dele não é afetado
-
-// statement = extrato bancário
 app.get('/statement', verifyExistsAccount,(req, res) => {
-  const { customer } = req // resgato de volta o meu customer, que eu "importei" diretamente no meu middleware
+  const { customer } = req
 
   return res.json(customer.statement)
 })
@@ -128,8 +123,7 @@ app.get('/account', verifyExistsAccount, (req, res) => {
 app.delete('/account', verifyExistsAccount, (req, res) => {
   const { customer } = req
   
-  customers.splice(customer, 1) // Utilizando a função splice, do modo que ela está aplicada, ela irá deletar o nosso customer que estamos passando no header
-
+  customers.splice(customer, 1) 
   return res.status(200).json(customers)
 })
 
@@ -142,5 +136,5 @@ app.get('/balance', verifyExistsAccount, (req, res) => {
 })
 
 app.listen(3333, () => {
-  console.log("Open Port: http://localhost:3333")
+  console.log("running server: http://localhost:3333")
 })
